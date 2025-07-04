@@ -21,7 +21,7 @@ fn main() {
             let tray_menu = create_tray_menu(app)?;
             let _tray = TrayIconBuilder::with_id("main")
                 .menu(&tray_menu)
-                .tooltip("Tauri Next.js Starter Kit")
+                .tooltip("Tauri Next.js Starterkit")
                 .on_menu_event(handle_tray_menu_event)
                 .on_tray_icon_event(handle_tray_icon_event)
                 .build(app)?;

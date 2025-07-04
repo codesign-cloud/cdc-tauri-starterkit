@@ -1,20 +1,20 @@
-# 🚀 Tauri + Next.js 15+ Starter Kit
+# 🚀 Tauri + Next.js 15+ Starterkit
 
 A modern, cross-platform desktop application starter kit built with **Tauri**, **Next.js 15+**, **TypeScript**, and **Tailwind CSS**. Features native desktop integration including system tray and native menus.
 
 ## ✨ Features
 
 - 🖥️ **Cross-platform Desktop App** - Windows, macOS, and Linux support
-- ⚛️ **Next.js 15+** - Latest Next.js with React 19 and App Router
-- 🔷 **TypeScript** - Full type safety across frontend and backend
-- 🎨 **Tailwind CSS** - Modern utility-first styling framework
 - 🦀 **Rust Backend** - High-performance Tauri backend
+- ⚛️ **Next.js 15+** - Latest Next.js with React 19 and *App Router*
+- 🎨 **Tailwind CSS** - Modern utility-first styling framework
+- 🔷 **TypeScript** - Full type safety across frontend and backend
 - 🔔 **System Tray** - Minimize to system tray with context menu
 - 📋 **Native Menus** - Native application menu bar
 - 🔄 **Hot Reload** - Fast development experience
 - 📦 **Static Export** - Optimized for desktop distribution
 
-## 📸 Screenshot
+## 🖼️ Screenshot
 
 ![Application Screenshot](public/screenshot.png)
 

@@ -1,7 +1,7 @@
 {
   "name": "cdc-tauri-starterkit",
   "version": "0.1.0",
-  "description": "A modern Tauri + Next.js 15+ starter kit with TypeScript and Tailwind CSS",
+  "description": "A modern Tauri + Next.js 15+ starterkit with TypeScript and Tailwind CSS",
   "private": true,
   "scripts": {
     "dev": "next dev",

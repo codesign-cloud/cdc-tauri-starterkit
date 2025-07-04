@@ -19,7 +19,7 @@ export default function Home() {
 
   useEffect(() => {
     // Set default greeting on component mount
-    setGreetMsg('Welcome to Tauri + Next.js 15 Starter Kit!')
+    setGreetMsg('Welcome to Tauri + Next.js 15 Startekit!')
   }, [])
 
   return (
@@ -31,7 +31,7 @@ export default function Home() {
             CDC Tauri + Next.js Starterkit
           </h1>
           <p className="text-xl text-gray-600 dark:text-gray-400 max-w-2xl mx-auto">
-            A modern desktop application starter kit built with Tauri, Next.js 15, and TypeScript.
+            A modern desktop application starterkit built with Tauri, Next.js 15, and TypeScript.
           </p>
         </div>
 
