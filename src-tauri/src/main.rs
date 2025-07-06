@@ -7,15 +7,30 @@ use tauri::{
 };
 
 mod commands;
+mod notifications;
 mod tray;
 
 use commands::*;
+use notifications::*;
 use tray::*;
 
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
-        .invoke_handler(tauri::generate_handler![greet, show_window, hide_window])
+        .plugin(tauri_plugin_notification::init())
+        .invoke_handler(tauri::generate_handler![
+            greet,
+            show_window,
+            hide_window,
+            check_notification_permission,
+            request_notification_permission,
+            send_notification,
+            send_custom_notification,
+            send_demo_notification,
+            send_success_notification,
+            send_error_notification,
+            send_info_notification
+        ])
         .setup(|app| {
             // Create system tray
             let tray_menu = create_tray_menu(app)?;

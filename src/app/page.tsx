@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { invoke } from '@tauri-apps/api/core'
+import NotificationDemo from '@/components/NotificationDemo'
 
 export default function Home() {
   const [greetMsg, setGreetMsg] = useState('')
@@ -61,6 +62,11 @@ export default function Home() {
               </p>
             )}
           </div>
+        </div>
+
+        {/* Notification Demo */}
+        <div className="mb-20">
+          <NotificationDemo />
         </div>
 
         {/* Features Grid */}
