@@ -9,7 +9,7 @@ const nextConfig = {
   },
   assetPrefix: process.env.NODE_ENV === 'production' ? './' : '',
   experimental: {
-    esmExternals: 'loose',
+    //esmExternals: 'loose',
   },
 }
 
