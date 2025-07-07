@@ -4,11 +4,16 @@ import { useState, useEffect } from 'react'
 import { invoke } from '@tauri-apps/api/core'
 import { Copy, Link2, ArrowRight } from 'lucide-react'
 import Link from 'next/link'
+import useSWR from 'swr'
 import NotificationDemo from '@/components/NotificationDemo'
+import { fetchFeatures } from '@/lib/tauri'
 
 export default function Home() {
   const [greetMsg, setGreetMsg] = useState('')
   const [name, setName] = useState('')
+  
+  // Fetch enabled features using SWR
+  const { data: features } = useSWR('tauri-features', fetchFeatures)
 
   async function greet() {
     try {
@@ -72,54 +77,72 @@ export default function Home() {
             Explore Advanced Features
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Clipboard Demo Link */}
-            <Link href="/clipboard-demo" className="group">
-              <div className="border border-gray-200 dark:border-gray-800 rounded-lg p-6 bg-gray-50 dark:bg-gray-950 hover:bg-white dark:hover:bg-black transition-colors">
-                <div className="flex items-center gap-3 mb-4">
-                  <Copy size={24} className="text-black dark:text-white" />
-                  <h3 className="text-lg font-semibold text-black dark:text-white">
-                    Clipboard Manager
-                  </h3>
-                  <ArrowRight size={16} className="text-gray-400 group-hover:text-black dark:group-hover:text-white group-hover:translate-x-1 transition-all ml-auto" />
+            {/* Clipboard Demo Link - Only show if clipboard feature is enabled */}
+            {features?.has('clipboard') && (
+              <Link href="/clipboard-demo" className="group">
+                <div className="border border-gray-200 dark:border-gray-800 rounded-lg p-6 bg-gray-50 dark:bg-gray-950 hover:bg-white dark:hover:bg-black transition-colors">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Copy size={24} className="text-black dark:text-white" />
+                    <h3 className="text-lg font-semibold text-black dark:text-white">
+                      Clipboard Manager
+                    </h3>
+                    <ArrowRight size={16} className="text-gray-400 group-hover:text-black dark:group-hover:text-white group-hover:translate-x-1 transition-all ml-auto" />
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    Advanced clipboard operations with history tracking, smart content detection, and seamless system integration.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="px-2 py-1 text-xs bg-black dark:bg-white text-white dark:text-black rounded">Copy/Paste</span>
+                    <span className="px-2 py-1 text-xs bg-black dark:bg-white text-white dark:text-black rounded">History</span>
+                    <span className="px-2 py-1 text-xs bg-black dark:bg-white text-white dark:text-black rounded">Auto-detect</span>
+                  </div>
                 </div>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  Advanced clipboard operations with history tracking, smart content detection, and seamless system integration.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <span className="px-2 py-1 text-xs bg-black dark:bg-white text-white dark:text-black rounded">Copy/Paste</span>
-                  <span className="px-2 py-1 text-xs bg-black dark:bg-white text-white dark:text-black rounded">History</span>
-                  <span className="px-2 py-1 text-xs bg-black dark:bg-white text-white dark:text-black rounded">Auto-detect</span>
-                </div>
-              </div>
-            </Link>
+              </Link>
+            )}
 
-            {/* Deep Link Demo Link */}
-            <Link href="/deep-link-demo" className="group">
-              <div className="border border-gray-200 dark:border-gray-800 rounded-lg p-6 bg-gray-50 dark:bg-gray-950 hover:bg-white dark:hover:bg-black transition-colors">
-                <div className="flex items-center gap-3 mb-4">
-                  <Link2 size={24} className="text-black dark:text-white" />
-                  <h3 className="text-lg font-semibold text-black dark:text-white">
-                    Deep Link Handler
-                  </h3>
-                  <ArrowRight size={16} className="text-gray-400 group-hover:text-black dark:group-hover:text-white group-hover:translate-x-1 transition-all ml-auto" />
+            {/* Deep Link Demo Link - Only show if deep-links feature is enabled */}
+            {features?.has('deep-links') && (
+              <Link href="/deep-link-demo" className="group">
+                <div className="border border-gray-200 dark:border-gray-800 rounded-lg p-6 bg-gray-50 dark:bg-gray-950 hover:bg-white dark:hover:bg-black transition-colors">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Link2 size={24} className="text-black dark:text-white" />
+                    <h3 className="text-lg font-semibold text-black dark:text-white">
+                      Deep Link Handler
+                    </h3>
+                    <ArrowRight size={16} className="text-gray-400 group-hover:text-black dark:group-hover:text-white group-hover:translate-x-1 transition-all ml-auto" />
+                  </div>
+                  <p className="text-gray-600 dark:text-gray-400 mb-4">
+                    Register custom URL schemes and handle deep links for seamless inter-app communication and external integrations.
+                  </p>
+                  <div className="flex flex-wrap gap-2">
+                    <span className="px-2 py-1 text-xs bg-black dark:bg-white text-white dark:text-black rounded">Custom Protocols</span>
+                    <span className="px-2 py-1 text-xs bg-black dark:bg-white text-white dark:text-black rounded">URL Parsing</span>
+                    <span className="px-2 py-1 text-xs bg-black dark:bg-white text-white dark:text-black rounded">Events</span>
+                  </div>
                 </div>
-                <p className="text-gray-600 dark:text-gray-400 mb-4">
-                  Register custom URL schemes and handle deep links for seamless inter-app communication and external integrations.
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <span className="px-2 py-1 text-xs bg-black dark:bg-white text-white dark:text-black rounded">Custom Protocols</span>
-                  <span className="px-2 py-1 text-xs bg-black dark:bg-white text-white dark:text-black rounded">URL Parsing</span>
-                  <span className="px-2 py-1 text-xs bg-black dark:bg-white text-white dark:text-black rounded">Events</span>
-                </div>
-              </div>
-            </Link>
+              </Link>
+            )}
           </div>
+          
+          {/* Show message when no features are enabled */}
+          {features && features.size === 0 && (
+            <div className="text-center py-8">
+              <p className="text-gray-600 dark:text-gray-400 mb-4">
+                No optional features are currently enabled.
+              </p>
+              <p className="text-sm text-gray-500 dark:text-gray-500">
+                Run with <code className="bg-gray-100 dark:bg-gray-800 px-2 py-1 rounded text-xs">--features clipboard,notifications,deep-links</code> to see feature demos.
+              </p>
+            </div>
+          )}
         </div>
 
-        {/* Notification Demo */}
-        <div className="mb-20">
-          <NotificationDemo />
-        </div>
+        {/* Notification Demo - Only show if notifications feature is enabled */}
+        {features?.has('notifications') && (
+          <div className="mb-20">
+            <NotificationDemo />
+          </div>
+        )}
 
         {/* Features Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-16">
