@@ -84,8 +84,7 @@ jobs:
             -Provider "Microsoft Enhanced RSA and AES Cryptographic Provider" `
             -KeyExportPolicy Exportable `
             -KeyUsage DigitalSignature `
-            -ValidityPeriod Years `
-            -ValidityPeriodUnits 3 `
+            -NotAfter (Get-Date).AddYears(3) `
             -CertStoreLocation "Cert:\CurrentUser\My"
           
           Write-Host "Certificate created with thumbprint: $($cert.Thumbprint)"
