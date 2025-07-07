@@ -2,8 +2,9 @@
 
 import { useState, useEffect, useCallback } from 'react'
 import { invoke } from '@tauri-apps/api/core'
-import { Copy, Clipboard, Trash2, History, CheckCircle, AlertCircle, ArrowLeft, Eye, Clock, FileText, Image, Upload } from 'lucide-react'
+import { Copy, Clipboard, Trash2, History, CheckCircle, AlertCircle, ArrowLeft, Eye, Clock, FileText, Image as ImageIcon, Upload } from 'lucide-react'
 import Link from 'next/link'
+import Image from 'next/image'
 
 interface ClipboardFormat {
   format_name: string
@@ -440,7 +441,7 @@ export default function ClipboardDemo() {
             {/* Image Upload Section */}
             <div className="border border-gray-200 dark:border-gray-800 rounded-lg p-6 bg-gray-50 dark:bg-gray-950">
               <h3 className="text-md font-semibold text-black dark:text-white mb-4 flex items-center gap-2">
-                <Image size={18} />
+                <ImageIcon size={18} />
                 Copy Image to Clipboard
               </h3>
               <div className="space-y-4">
@@ -518,11 +519,12 @@ export default function ClipboardDemo() {
                 </div>
                 
                 {clipboardImage ? (
-                  <div className="w-full h-32 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-black flex items-center justify-center overflow-hidden">
-                    <img
+                  <div className="w-full h-32 border border-gray-300 dark:border-gray-700 rounded-md bg-white dark:bg-black flex items-center justify-center overflow-hidden relative">
+                    <Image
                       src={clipboardImage}
                       alt="Clipboard content"
-                      className="max-w-full max-h-full object-contain"
+                      fill
+                      className="object-contain"
                     />
                   </div>
                 ) : (
@@ -663,11 +665,12 @@ export default function ClipboardDemo() {
                   </div>
                   
                   {item.content_type === 'Image' && item.image_data ? (
-                    <div className="mb-2 flex items-center justify-center h-20 bg-gray-100 dark:bg-gray-800 rounded border overflow-hidden">
-                      <img
+                    <div className="mb-2 flex items-center justify-center h-20 bg-gray-100 dark:bg-gray-800 rounded border overflow-hidden relative">
+                      <Image
                         src={`data:image/${item.image_format || 'png'};base64,${item.image_data}`}
                         alt="Clipboard image"
-                        className="max-w-full max-h-full object-contain"
+                        fill
+                        className="object-contain"
                       />
                     </div>
                   ) : (
@@ -751,11 +754,12 @@ export default function ClipboardDemo() {
                 <div>
                   <label className="text-sm font-medium text-gray-700 dark:text-gray-300">Content:</label>
                   {selectedHistoryItem.content_type === 'Image' && selectedHistoryItem.image_data ? (
-                    <div className="mt-2 border border-gray-300 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800 p-4 flex items-center justify-center">
-                      <img
+                    <div className="mt-2 border border-gray-300 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800 p-4 flex items-center justify-center relative h-64">
+                      <Image
                         src={`data:image/${selectedHistoryItem.image_format || 'png'};base64,${selectedHistoryItem.image_data}`}
                         alt="Clipboard image"
-                        className="max-w-full max-h-64 object-contain"
+                        fill
+                        className="object-contain"
                       />
                     </div>
                   ) : (
@@ -821,11 +825,12 @@ export default function ClipboardDemo() {
                   {allFormats[selectedFormat] ? (
                     <div className="mt-2">
                       {selectedFormat.startsWith('image/') ? (
-                        <div className="border border-gray-300 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800 p-4 flex items-center justify-center">
-                          <img
+                        <div className="border border-gray-300 dark:border-gray-700 rounded-md bg-gray-50 dark:bg-gray-800 p-4 flex items-center justify-center relative h-64">
+                          <Image
                             src={`data:${selectedFormat};base64,${allFormats[selectedFormat]}`}
                             alt="Clipboard image"
-                            className="max-w-full max-h-64 object-contain"
+                            fill
+                            className="object-contain"
                           />
                         </div>
                       ) : (

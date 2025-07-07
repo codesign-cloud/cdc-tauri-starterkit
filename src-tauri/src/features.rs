@@ -15,6 +15,7 @@ pub mod deep_links;
 
 /// Feature flags for the application
 #[derive(Debug, Clone)]
+#[allow(dead_code)]
 pub struct Features {
     pub clipboard: bool,
     pub notifications: bool,
@@ -33,6 +34,7 @@ impl Default for Features {
     }
 }
 
+#[allow(dead_code)]
 impl Features {
     /// Create a new Features configuration
     pub fn new() -> Self {

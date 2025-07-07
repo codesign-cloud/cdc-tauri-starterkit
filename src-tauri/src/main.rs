@@ -117,6 +117,7 @@ fn main() {
 
             // Handle window events
             let window = app.get_webview_window("main").unwrap();
+            #[cfg(feature = "system-tray")]
             let window_clone = window.clone();
             window.on_window_event(move |event| {
                 if let WindowEvent::CloseRequested { api, .. } = event {
@@ -130,6 +131,7 @@ fn main() {
                     {
                         // Allow normal window close when no system tray is enabled
                         // Don't call api.prevent_close() to allow Tauri's graceful shutdown
+                        let _ = api; // Suppress unused variable warning
                     }
                 }
             });

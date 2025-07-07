@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { invoke } from '@tauri-apps/api/core'
 import { listen } from '@tauri-apps/api/event'
 import { Link2, Globe, Settings, User, FileText, ExternalLink, CheckCircle, AlertCircle, ArrowLeft, Play } from 'lucide-react'
@@ -48,6 +48,35 @@ export default function DeepLinkDemo() {
     }
   ]
 
+  const setupDeepLinkListener = useCallback(async () => {
+    try {
+      const unlisten = await listen('deep-link-received', (event: any) => {
+        const { url, scheme, host, path, query } = event.payload
+        console.log('Deep link received:', { url, scheme, host, path, query })
+        
+        const newEvent: DeepLinkEvent = {
+          url,
+          scheme,
+          host,
+          path,
+          query,
+          timestamp: new Date()
+        }
+        
+        setDeepLinkHistory(prev => [newEvent, ...prev.slice(0, 9)]) // Keep last 10 entries
+        showMessage(`Deep link received: ${url}`, 'success')
+      })
+      
+      setIsListening(true)
+      console.log('Deep link listener setup successful')
+      
+      return unlisten
+    } catch (error) {
+      console.error('Failed to setup deep link listener:', error)
+      setIsListening(false)
+    }
+  }, [])
+
   useEffect(() => {
     let unlisten: (() => void) | undefined;
     
@@ -76,7 +105,7 @@ export default function DeepLinkDemo() {
         unlisten();
       }
     };
-  }, [success, error]); // setupDeepLinkListener is intentionally not included as it should only run once
+  }, [success, error, setupDeepLinkListener]);
 
   const showMessage = (message: string, type: 'success' | 'error') => {
     if (type === 'success') {
@@ -88,34 +117,6 @@ export default function DeepLinkDemo() {
     }
   }
 
-  const setupDeepLinkListener = async () => {
-    try {
-      const unlisten = await listen('deep-link-received', (event: any) => {
-        const { url, scheme, host, path, query } = event.payload
-        console.log('Deep link received:', { url, scheme, host, path, query })
-        
-        const newEvent: DeepLinkEvent = {
-          url,
-          scheme,
-          host,
-          path,
-          query,
-          timestamp: new Date()
-        }
-        
-        setDeepLinkHistory(prev => [newEvent, ...prev.slice(0, 9)]) // Keep last 10 entries
-        showMessage(`Deep link received: ${url}`, 'success')
-      })
-      
-      setIsListening(true)
-      console.log('Deep link listener setup successful')
-      
-      return unlisten
-    } catch (error) {
-      console.error('Failed to setup deep link listener:', error)
-      setIsListening(false)
-    }
-  }
 
   const registerProtocol = async () => {
     if (!protocolInput.trim()) {

@@ -1,6 +1,5 @@
 use tauri_plugin_clipboard_manager::ClipboardExt;
 use tauri::image::Image;
-use std::path::Path;
 use crate::features::clipboard::{types::*, utils::*};
 use base64::{Engine as _, engine::general_purpose};
 
@@ -91,8 +90,8 @@ pub async fn read_all_clipboard_formats(app: tauri::AppHandle) -> Result<std::co
                 formats.insert("text/rtf".to_string(), text.clone());
             }
             
-            // Check if it's a file list
-            if text.lines().all(|line| Path::new(line).exists()) {
+            // Check if it's a file list (improved detection without disk I/O)
+            if is_file_list(&text) {
                 formats.insert("text/uri-list".to_string(), text.clone());
             }
         }
@@ -257,18 +256,9 @@ pub async fn get_clipboard_formats(app: tauri::AppHandle) -> Result<Vec<Clipboar
                 });
             }
 
-            // File path detection
-            let lines: Vec<&str> = text_content.lines().collect();
-            let all_paths = lines.iter().all(|line| {
-                !line.is_empty() && (
-                    line.contains(":\\") || // Windows path
-                    line.starts_with("/") || // Unix path
-                    line.starts_with("~/") || // Home directory
-                    Path::new(line).exists()
-                )
-            });
-            
-            if all_paths && !lines.is_empty() {
+            // File path detection (improved without disk I/O)
+            if is_file_list(&text_content) {
+                let lines: Vec<&str> = text_content.lines().filter(|line| !line.trim().is_empty()).collect();
                 formats.push(ClipboardFormat {
                     format_name: "File Drop List".to_string(),
                     format_type: "text/uri-list".to_string(),
@@ -456,9 +446,9 @@ pub async fn add_to_clipboard_history(app: tauri::AppHandle, content: String) ->
         Some(content.clone())
     } else { None };
     
-    // Check for file paths
-    let file_paths = if content.lines().all(|line| !line.is_empty() && Path::new(line).exists()) {
-        Some(content.lines().map(|s| s.to_string()).collect())
+    // Check for file paths (improved detection)
+    let file_paths = if is_file_list(&content) {
+        Some(content.lines().filter(|line| !line.trim().is_empty()).map(|s| s.to_string()).collect())
     } else { None };
     
     let file_list = if file_paths.is_some() { Some(content.clone()) } else { None };
