@@ -1,7 +1,9 @@
 pub mod commands;
-pub mod notifications;
+pub mod features;
+
+#[cfg(feature = "system-tray")]
 pub mod tray;
 
 pub use commands::*;
-pub use notifications::*;
+#[cfg(feature = "system-tray")]
 pub use tray::*;

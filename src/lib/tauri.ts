@@ -161,3 +161,13 @@ export const safeInvoke = async <T>(
     throw error
   }
 }
+
+// Fetch enabled features from Tauri backend
+export async function fetchFeatures(): Promise<Set<string>> {
+  try {
+    return new Set(await invoke<string[]>("get_enabled_features"));
+  } catch (error) {
+    console.error("Error fetching enabled features:", error);
+    return new Set();
+  }
+}

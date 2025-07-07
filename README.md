@@ -4,15 +4,22 @@ A modern, cross-platform desktop application starter kit built with **Tauri**, *
 
 ## ✨ Features
 
+### Core Framework
 - 🖥️ **Cross-platform Desktop App** - Windows, macOS, and Linux support
 - 🦀 **Rust Backend** - High-performance Tauri backend
 - ⚛️ **Next.js 15+** - Latest Next.js with React 19 and *App Router*
 - 🎨 **Tailwind CSS** - Modern utility-first styling framework
 - 🔷 **TypeScript** - Full type safety across frontend and backend
-- 🔔 **System Tray** - Minimize to system tray with context menu
-- 📋 **Native Menus** - Native application menu bar
 - 🔄 **Hot Reload** - Fast development experience
 - 📦 **Static Export** - Optimized for desktop distribution
+
+### 🧩 Modular Features (Optional)
+- 🔔 **Notifications** - Native system notifications with permission handling
+- 🔗 **Deep Links** - Custom protocol handling for deep linking
+- 📋 **Clipboard Manager** - Advanced clipboard with history and image support
+- 🖥️ **System Tray** - Minimize to system tray with context menu
+
+> **💡 All features are modular!** Enable only what you need to keep your app lightweight. See [Feature Configuration Guide](FEATURES.md) for details.
 
 ## 🖼️ Screenshot
 
@@ -106,6 +113,15 @@ npm install -g @tauri-apps/cli@next
    npm run tauri:dev
    ```
 
+4. **Choose features (optional)**
+   ```bash
+   # Run with specific features
+   npm run tauri:dev -- --features clipboard,notifications
+   
+   # Or build with features
+   npm run tauri:build -- --features deep-links
+   ```
+
 **Windows Notes:**
 - Use **PowerShell** or **Command Prompt** as Administrator for best results
 - If using **Git Bash**, some commands may need to be run in PowerShell
@@ -114,11 +130,17 @@ npm install -g @tauri-apps/cli@next
 
 ## 📜 Available Scripts
 
-- `npm run tauri:dev` - Start Tauri development mode (also starts nextjs)
-- `npm run tauri:build` - Build Tauri application for distribution
+- `npm run tauri:dev` - Start Tauri development mode with no optional features
+- `npm run tauri:dev:feat` - Start Tauri development mode with all features enabled
+- `npm run tauri:build` - Build Tauri application (append `-- --features feature1,feature2` to enable features)
 - `npm run tauri:info` - Show Tauri environment information
 - `npm run dev` - Start Next.js development server
 - `npm run build` - Build Next.js for production
+
+### Feature Examples
+- `npm run tauri:dev -- --features clipboard` - Run with clipboard feature only
+- `npm run tauri:dev -- --features clipboard,notifications` - Run with clipboard and notifications
+- `npm run tauri:build -- --features deep-links` - Build with deep-links feature only
 
 ## 🖥️ Native Features
 
@@ -143,6 +165,75 @@ npm install -g @tauri-apps/cli@next
 - **Close Button**: Hides window instead of closing (stays in tray)
 - **Minimize**: Can minimize to tray or taskbar
 - **Focus**: Proper window focusing and activation
+
+## 🧩 Choose Features at Build Time
+
+This starter kit is **feature-neutral by design**. All optional features are disabled by default, and you choose which features to enable when running or building your application.
+
+### How to Choose Features
+
+**Development with Features:**
+```bash
+# Run with specific features
+npm run tauri:dev -- --features clipboard,notifications
+
+# Run with all features (equivalent to the old "full" preset)
+npm run tauri:dev:feat
+
+# Run with no features (minimal build)
+npm run tauri:dev
+```
+
+**Building with Features:**
+```bash
+# Build with specific features
+npm run tauri:build -- --features clipboard,notifications
+
+# Build with no features (minimal build)
+npm run tauri:build
+```
+
+**Advanced Cargo Usage:**
+```bash
+# Use cargo directly for more control
+cargo tauri dev --features clipboard,deep-links
+cargo tauri build --features notifications
+```
+
+### Available Features
+
+| Feature | Description | Bundle Impact | Dependencies |
+|---------|-------------|---------------|--------------|
+| `notifications` | Native system notifications | ~200KB | tauri-plugin-notification |
+| `deep-links` | Custom protocol handling | ~150KB | tauri-plugin-deep-link |
+| `clipboard` | Advanced clipboard manager | ~800KB | tauri-plugin-clipboard-manager + image processing |
+| `system-tray` | System tray integration | ~50KB | Built into Tauri |
+
+### Common Feature Combinations
+
+```bash
+# Full build - All features (equivalent to old "full" preset)
+npm run tauri:dev -- --features notifications,deep-links,clipboard,system-tray
+
+# Productivity app - Clipboard + notifications
+npm run tauri:dev -- --features clipboard,notifications,system-tray
+
+# Web integration app - Deep links + notifications
+npm run tauri:dev -- --features deep-links,notifications
+
+# Minimal app - No optional features (default)
+npm run tauri:dev
+```
+
+**Build Examples:**
+```bash
+# Production builds with specific features
+npm run tauri:build -- --features clipboard,notifications
+npm run tauri:build -- --features deep-links
+npm run tauri:build  # minimal build
+```
+
+**📖 For detailed configuration guide, see [FEATURES.md](FEATURES.md)**
 
 ## 🔧 Configuration
 
