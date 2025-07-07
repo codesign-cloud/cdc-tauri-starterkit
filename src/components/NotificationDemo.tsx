@@ -277,7 +277,7 @@ export default function NotificationDemo() {
           <div className={`p-3 rounded-md border ${
             lastResult.success
               ? 'bg-gray-50 dark:bg-gray-950 border-gray-200 dark:border-gray-800'
-              : 'bg-gray-50 dark:bg-gray-950 border-gray-200 dark:border-gray-800'
+              : 'bg-red-50 dark:bg-red-950 border-red-200 dark:border-red-800'
           }`}>
             <p className={`text-sm font-medium ${
               lastResult.success
