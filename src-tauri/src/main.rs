@@ -128,8 +128,8 @@ fn main() {
                     }
                     #[cfg(not(feature = "system-tray"))]
                     {
-                        // Close normally if no system tray
-                        std::process::exit(0);
+                        // Allow normal window close when no system tray is enabled
+                        // Don't call api.prevent_close() to allow Tauri's graceful shutdown
                     }
                 }
             });
