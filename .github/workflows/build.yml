@@ -6,6 +6,12 @@ on:
       - main
       - master
   workflow_dispatch:
+    inputs:
+      test_signing:
+        description: 'Test code signing with self-signed certificate'
+        required: false
+        default: false
+        type: boolean
 
 jobs:
   build:
@@ -54,11 +60,82 @@ jobs:
             exit 1
           fi
 
+      - name: Create Test Self-Signed Certificate
+        if: github.event.inputs.test_signing == 'true'
+        shell: powershell
+        run: |
+          Write-Host "🔐 Creating test self-signed certificate for signing validation..."
+          
+          # Create self-signed code signing certificate
+          $cert = New-SelfSignedCertificate `
+            -Type CodeSigningCert `
+            -Subject "CN=Tauri Build Test" `
+            -KeyAlgorithm RSA `
+            -KeyLength 2048 `
+            -Provider "Microsoft Enhanced RSA and AES Cryptographic Provider" `
+            -KeyExportPolicy Exportable `
+            -KeyUsage DigitalSignature `
+            -ValidityPeriod Years `
+            -ValidityPeriodUnits 1 `
+            -CertStoreLocation "Cert:\CurrentUser\My"
+          
+          Write-Host "✅ Test certificate created with thumbprint: $($cert.Thumbprint)"
+          
+          # Export to PFX file
+          $password = ConvertTo-SecureString -String "test-build-cert" -Force -AsPlainText
+          $pfxPath = "test-cert.pfx"
+          Export-PfxCertificate -Cert $cert -FilePath $pfxPath -Password $password
+          
+          # Convert to base64
+          $certBytes = [IO.File]::ReadAllBytes($pfxPath)
+          $certBase64 = [Convert]::ToBase64String($certBytes)
+          
+          # Set environment variables
+          echo "TEST_CERT_BASE64=$certBase64" >> $env:GITHUB_ENV
+          echo "TEST_CERT_PASSWORD=test-build-cert" >> $env:GITHUB_ENV
+          echo "SIGNING_ENABLED=true" >> $env:GITHUB_ENV
+          
+          # Clean up
+          Remove-Item $pfxPath -Force
+          
+          Write-Host "🧪 Test certificate ready for build validation"
+
       - name: Build Tauri app (without release)
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Use test certificate if signing test is enabled
+          TAURI_SIGNING_PRIVATE_KEY: ${{ env.SIGNING_ENABLED == 'true' && env.TEST_CERT_BASE64 || '' }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ env.SIGNING_ENABLED == 'true' && env.TEST_CERT_PASSWORD || '' }}
         with:
           includeDebug: false
           includeRelease: false
           includeUpdaterJson: false
+
+      - name: Verify Signing (if enabled)
+        if: github.event.inputs.test_signing == 'true'
+        shell: powershell
+        run: |
+          Write-Host "🔍 Verifying code signing on built executable..."
+          
+          # Find the built executable
+          $exePath = Get-ChildItem -Path "src-tauri\target\release" -Filter "*.exe" -Recurse | Select-Object -First 1
+          
+          if ($exePath) {
+            Write-Host "Found executable: $($exePath.FullName)"
+            
+            # Check if file is signed
+            $signature = Get-AuthenticodeSignature -FilePath $exePath.FullName
+            
+            if ($signature.Status -eq "Valid" -or $signature.Status -eq "UnknownError") {
+              Write-Host "✅ Executable is signed!"
+              Write-Host "Certificate Subject: $($signature.SignerCertificate.Subject)"
+              Write-Host "Certificate Thumbprint: $($signature.SignerCertificate.Thumbprint)"
+            } else {
+              Write-Host "❌ Executable signing verification failed"
+              Write-Host "Status: $($signature.Status)"
+              Write-Host "Status Message: $($signature.StatusMessage)"
+            }
+          } else {
+            Write-Host "⚠️ No executable found to verify"
+          }

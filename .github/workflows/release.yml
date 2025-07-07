@@ -6,6 +6,31 @@ on:
       - main
       - master
   workflow_dispatch:
+    inputs:
+      cert_subject:
+        description: 'Certificate subject (e.g., CN=YourCompany)'
+        required: false
+        default: 'CN=Tauri Developer'
+      cert_organization:
+        description: 'Organization name'
+        required: false
+        default: 'Tauri App Developer'
+      cert_country:
+        description: 'Country code (e.g., US, GB, DE)'
+        required: false
+        default: 'US'
+      use_self_signed:
+        description: 'Use self-signed certificate for signing'
+        required: false
+        default: true
+        type: boolean
+
+env:
+  # Default certificate configuration (can be overridden by workflow_dispatch inputs)
+  CERT_SUBJECT: ${{ github.event.inputs.cert_subject || 'CN=Tauri Developer' }}
+  CERT_ORGANIZATION: ${{ github.event.inputs.cert_organization || 'Tauri App Developer' }}
+  CERT_COUNTRY: ${{ github.event.inputs.cert_country || 'US' }}
+  USE_SELF_SIGNED: ${{ github.event.inputs.use_self_signed || 'true' }}
 
 jobs:
   release:
@@ -41,6 +66,49 @@ jobs:
       - name: Build Next.js frontend
         run: npm run build
 
+      - name: Create Self-Signed Certificate
+        if: env.USE_SELF_SIGNED == 'true'
+        shell: powershell
+        run: |
+          Write-Host "Creating self-signed certificate..."
+          Write-Host "Subject: $env:CERT_SUBJECT"
+          Write-Host "Organization: $env:CERT_ORGANIZATION"
+          Write-Host "Country: $env:CERT_COUNTRY"
+          
+          # Create self-signed code signing certificate
+          $cert = New-SelfSignedCertificate `
+            -Type CodeSigningCert `
+            -Subject "$env:CERT_SUBJECT" `
+            -KeyAlgorithm RSA `
+            -KeyLength 2048 `
+            -Provider "Microsoft Enhanced RSA and AES Cryptographic Provider" `
+            -KeyExportPolicy Exportable `
+            -KeyUsage DigitalSignature `
+            -ValidityPeriod Years `
+            -ValidityPeriodUnits 3 `
+            -CertStoreLocation "Cert:\CurrentUser\My"
+          
+          Write-Host "Certificate created with thumbprint: $($cert.Thumbprint)"
+          
+          # Export to PFX file
+          $password = ConvertTo-SecureString -String "github-actions-cert-2024" -Force -AsPlainText
+          $pfxPath = "self-signed-cert.pfx"
+          Export-PfxCertificate -Cert $cert -FilePath $pfxPath -Password $password
+          
+          # Convert to base64 for environment variable
+          $certBytes = [IO.File]::ReadAllBytes($pfxPath)
+          $certBase64 = [Convert]::ToBase64String($certBytes)
+          
+          # Set environment variables for next steps
+          echo "SIGNING_CERT_BASE64=$certBase64" >> $env:GITHUB_ENV
+          echo "SIGNING_CERT_PASSWORD=github-actions-cert-2024" >> $env:GITHUB_ENV
+          echo "CERT_CREATED=true" >> $env:GITHUB_ENV
+          
+          # Clean up PFX file
+          Remove-Item $pfxPath -Force
+          
+          Write-Host "✅ Self-signed certificate ready for signing"
+
       - name: Get package version
         id: package-version
         shell: bash
@@ -66,6 +134,9 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Use self-signed certificate if created, otherwise use secrets (for real certificates)
+          TAURI_SIGNING_PRIVATE_KEY: ${{ env.CERT_CREATED == 'true' && env.SIGNING_CERT_BASE64 || secrets.WINDOWS_CERTIFICATE }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ${{ env.CERT_CREATED == 'true' && env.SIGNING_CERT_PASSWORD || secrets.WINDOWS_CERTIFICATE_PASSWORD }}
         with:
           tagName: v${{ steps.package-version.outputs.version }}
           releaseName: 'Release v${{ steps.package-version.outputs.version }}'
@@ -76,10 +147,16 @@ jobs:
             
             ### Features
             - Tauri + Next.js application
-            - Windows executable included
+            - **Code-signed Windows executable** 🔐
+            - Windows installer included
+            
+            ### Certificate Information
+            ${{ env.CERT_CREATED == 'true' && '⚠️ **Self-signed certificate** - You may see security warnings on first run' || '✅ **Digitally signed** - Trusted certificate authority' }}
             
             ### Installation
             Download the appropriate installer for your platform from the assets below.
+            
+            ${{ env.CERT_CREATED == 'true' && '**Note**: This build uses a self-signed certificate. Windows may show security warnings. This is normal for development builds.' || '' }}
           releaseDraft: false
           prerelease: false
           includeDebug: false
