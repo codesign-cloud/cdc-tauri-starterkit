@@ -49,17 +49,34 @@ export default function DeepLinkDemo() {
   ]
 
   useEffect(() => {
-    setupDeepLinkListener()
+    let unlisten: (() => void) | undefined;
+    
+    const setupListener = async () => {
+      unlisten = await setupDeepLinkListener();
+    };
+    
+    setupListener();
     
     // Clear messages after 3 seconds
     if (success || error) {
       const timer = setTimeout(() => {
-        setSuccess(null)
-        setError(null)
-      }, 3000)
-      return () => clearTimeout(timer)
+        setSuccess(null);
+        setError(null);
+      }, 3000);
+      return () => {
+        clearTimeout(timer);
+        if (unlisten) {
+          unlisten();
+        }
+      };
     }
-  }, [success, error]) // setupDeepLinkListener is intentionally not included as it should only run once
+    
+    return () => {
+      if (unlisten) {
+        unlisten();
+      }
+    };
+  }, [success, error]); // setupDeepLinkListener is intentionally not included as it should only run once
 
   const showMessage = (message: string, type: 'success' | 'error') => {
     if (type === 'success') {
