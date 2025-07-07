@@ -65,8 +65,12 @@
       "open": true
     },
     "deep-link": {
-      "domains": ["tauri-app.com"],
-      "schemes": ["tauri-starterkit"]
+      "domains": [
+        "tauri-app.com"
+      ],
+      "schemes": [
+        "tauri-starterkit"
+      ]
     }
   }
 }

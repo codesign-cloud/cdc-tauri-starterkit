@@ -1,0 +1,92 @@
+name: Release Tauri App
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  release:
+    permissions:
+      contents: write
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [windows-latest]
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Build Next.js frontend
+        run: npm run build
+
+      - name: Get package version
+        id: package-version
+        shell: bash
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "Package version: $VERSION"
+
+      - name: Check if tag exists
+        id: check-tag
+        shell: bash
+        run: |
+          if git rev-parse "v${{ steps.package-version.outputs.version }}" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "Tag v${{ steps.package-version.outputs.version }} already exists"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "Tag v${{ steps.package-version.outputs.version }} does not exist"
+          fi
+
+      - name: Build Tauri app
+        if: steps.check-tag.outputs.exists == 'false'
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: v${{ steps.package-version.outputs.version }}
+          releaseName: 'Release v${{ steps.package-version.outputs.version }}'
+          releaseBody: |
+            ## What's Changed
+            
+            Release of version ${{ steps.package-version.outputs.version }}
+            
+            ### Features
+            - Tauri + Next.js application
+            - Windows executable included
+            
+            ### Installation
+            Download the appropriate installer for your platform from the assets below.
+          releaseDraft: false
+          prerelease: false
+          includeDebug: false
+          includeRelease: true
+
+      - name: Skip release (tag exists)
+        if: steps.check-tag.outputs.exists == 'true'
+        run: |
+          echo "Skipping release because tag v${{ steps.package-version.outputs.version }} already exists"
+          echo "If you want to create a new release, please update the version in package.json"

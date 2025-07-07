@@ -12,7 +12,11 @@
     "tauri:dev": "tauri dev",
     "tauri:dev:feat": "tauri dev --features notifications,deep-links,clipboard,system-tray",
     "tauri:build": "tauri build",
-    "tauri:info": "tauri info"
+    "tauri:info": "tauri info",
+    "version:patch": "npm version patch --no-git-tag-version && node scripts/sync-version.js",
+    "version:minor": "npm version minor --no-git-tag-version && node scripts/sync-version.js",
+    "version:major": "npm version major --no-git-tag-version && node scripts/sync-version.js",
+    "build:release": "npm run build && npm run tauri:build"
   },
   "dependencies": {
     "@tauri-apps/api": "^2.0.0",

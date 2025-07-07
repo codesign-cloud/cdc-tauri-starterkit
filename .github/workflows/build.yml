@@ -1,0 +1,64 @@
+name: Build Tauri App
+
+on:
+  pull_request:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: [windows-latest]
+
+    runs-on: ${{ matrix.platform }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install Rust stable
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: './src-tauri -> target'
+
+      - name: Install frontend dependencies
+        run: npm ci
+
+      - name: Lint frontend
+        run: npm run lint
+
+      - name: Build Next.js frontend
+        run: npm run build
+
+      - name: Verify dist directory
+        shell: bash
+        run: |
+          if [ -d "dist" ]; then
+            echo "✅ Next.js build successful - dist directory created"
+            echo "Contents of dist directory:"
+            ls -la dist/
+          else
+            echo "❌ Next.js build failed - dist directory not found"
+            exit 1
+          fi
+
+      - name: Build Tauri app (without release)
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          includeDebug: false
+          includeRelease: false
+          includeUpdaterJson: false
