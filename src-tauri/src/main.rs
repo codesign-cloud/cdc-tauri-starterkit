@@ -9,15 +9,21 @@ use tauri::{
 mod commands;
 mod notifications;
 mod tray;
+mod clipboard;
+mod deep_link;
 
 use commands::*;
 use notifications::*;
 use tray::*;
+use clipboard::*;
+use deep_link::*;
 
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_shell::init())
         .plugin(tauri_plugin_notification::init())
+        .plugin(tauri_plugin_deep_link::init())
+        .plugin(tauri_plugin_clipboard_manager::init())
         .invoke_handler(tauri::generate_handler![
             greet,
             show_window,
@@ -29,7 +35,15 @@ fn main() {
             send_demo_notification,
             send_success_notification,
             send_error_notification,
-            send_info_notification
+            send_info_notification,
+            // Clipboard commands
+            copy_to_clipboard,
+            paste_from_clipboard,
+            get_clipboard_history,
+            clear_clipboard,
+            // Deep link commands
+            register_protocol,
+            handle_deep_link_event
         ])
         .setup(|app| {
             // Create system tray

@@ -62,6 +62,13 @@
   "plugins": {
     "shell": {
       "open": true
+    },
+    "deep-link": {
+      "domains": ["tauri-app.com"],
+      "schemes": ["tauri-starterkit"]
+    },
+    "clipboard-manager": {
+      "all": true
     }
   }
 }
