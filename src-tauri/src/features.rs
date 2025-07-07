@@ -92,7 +92,7 @@ macro_rules! feature_enabled {
 /// Tauri command to get enabled features at runtime
 #[tauri::command]
 pub fn get_enabled_features() -> Vec<&'static str> {
-    let mut v = Vec::new();
+    let v = Vec::new();
     #[cfg(feature = "notifications")]
     v.push("notifications");
     #[cfg(feature = "deep-links")]

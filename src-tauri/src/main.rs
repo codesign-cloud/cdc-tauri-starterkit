@@ -26,24 +26,18 @@ use features::clipboard::commands::*;
 use features::deep_links::commands::*;
 
 fn main() {
-    let mut builder = tauri::Builder::default()
+    let builder = tauri::Builder::default()
         .plugin(tauri_plugin_shell::init());
 
     // Conditionally add plugins based on features
     #[cfg(feature = "notifications")]
-    {
-        builder = builder.plugin(tauri_plugin_notification::init());
-    }
+    let builder = builder.plugin(tauri_plugin_notification::init());
 
     #[cfg(feature = "deep-links")]
-    {
-        builder = builder.plugin(tauri_plugin_deep_link::init());
-    }
+    let builder = builder.plugin(tauri_plugin_deep_link::init());
 
     #[cfg(feature = "clipboard")]
-    {
-        builder = builder.plugin(tauri_plugin_clipboard_manager::init());
-    }
+    let builder = builder.plugin(tauri_plugin_clipboard_manager::init());
 
     builder
         .invoke_handler(tauri::generate_handler![
