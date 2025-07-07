@@ -131,7 +131,7 @@ npm install -g @tauri-apps/cli@next
 ## 📜 Available Scripts
 
 - `npm run tauri:dev` - Start Tauri development mode with no optional features
-- `npm run tauri:dev:f` - Start Tauri development mode with all features enabled
+- `npm run tauri:dev:feat` - Start Tauri development mode with all features enabled
 - `npm run tauri:build` - Build Tauri application (append `-- --features feature1,feature2` to enable features)
 - `npm run tauri:info` - Show Tauri environment information
 - `npm run dev` - Start Next.js development server
@@ -178,7 +178,7 @@ This starter kit is **feature-neutral by design**. All optional features are dis
 npm run tauri:dev -- --features clipboard,notifications
 
 # Run with all features (equivalent to the old "full" preset)
-npm run tauri:dev:f
+npm run tauri:dev:feat
 
 # Run with no features (minimal build)
 npm run tauri:dev

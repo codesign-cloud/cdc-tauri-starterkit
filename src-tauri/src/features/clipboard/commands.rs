@@ -115,6 +115,22 @@ pub async fn paste_from_clipboard(app: tauri::AppHandle) -> Result<String, Strin
 
 #[tauri::command]
 pub async fn get_clipboard_formats(app: tauri::AppHandle) -> Result<Vec<ClipboardFormat>, String> {
+
+    use std::sync::Mutex;
+    use std::time::{Duration, Instant};
+    
+    static CACHE: Mutex<Option<(Vec<ClipboardFormat>, Instant)>> = Mutex::new(None);
+    const CACHE_DURATION: Duration = Duration::from_secs(5);
+    
+    // Check cache
+    {
+        let cache = CACHE.lock().unwrap();
+        if let Some((cached_formats, timestamp)) = &*cache {
+            if timestamp.elapsed() < CACHE_DURATION {
+                return Ok(cached_formats.clone());
+            }
+        }
+    }
     let mut formats = Vec::new();
     
     // Check for image data first

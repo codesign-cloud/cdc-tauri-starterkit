@@ -77,6 +77,7 @@ export default function DeepLinkDemo() {
     }
   }, [])
 
+  // Setup deep link listener once on component mount
   useEffect(() => {
     let unlisten: (() => void) | undefined;
     
@@ -86,26 +87,26 @@ export default function DeepLinkDemo() {
     
     setupListener();
     
-    // Clear messages after 3 seconds
-    if (success || error) {
-      const timer = setTimeout(() => {
-        setSuccess(null);
-        setError(null);
-      }, 3000);
-      return () => {
-        clearTimeout(timer);
-        if (unlisten) {
-          unlisten();
-        }
-      };
-    }
-    
     return () => {
       if (unlisten) {
         unlisten();
       }
     };
-  }, [success, error, setupDeepLinkListener]);
+  }, [setupDeepLinkListener]);
+
+  // Handle message timeout separately
+  useEffect(() => {
+    if (success || error) {
+      const timer = setTimeout(() => {
+        setSuccess(null);
+        setError(null);
+      }, 3000);
+      
+      return () => {
+        clearTimeout(timer);
+      };
+    }
+  }, [success, error]);
 
   const showMessage = (message: string, type: 'success' | 'error') => {
     if (type === 'success') {
