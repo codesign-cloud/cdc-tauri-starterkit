@@ -27,3 +27,19 @@ pub fn hide_window(app: AppHandle) -> Result<(), String> {
         None => Err("Window not found".to_string()),
     }
 }
+
+#[tauri::command]
+pub async fn restart_app(app: AppHandle) -> Result<(), String> {
+    #[cfg(debug_assertions)]
+    {
+        // Only allow restart in debug mode
+        app.restart();
+        // This line is unreachable but needed for type checking
+        #[allow(unreachable_code)]
+        Ok(())
+    }
+    #[cfg(not(debug_assertions))]
+    {
+        Err("Restart is only available in development mode".to_string())
+    }
+}

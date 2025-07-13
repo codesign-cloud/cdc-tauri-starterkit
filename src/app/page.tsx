@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { invoke } from '@tauri-apps/api/core'
-import { Copy, Link2, ArrowRight } from 'lucide-react'
+import { Copy, Link2, ArrowRight, Monitor } from 'lucide-react'
 import Link from 'next/link'
 import useSWR from 'swr'
 import NotificationDemo from '@/components/NotificationDemo'
@@ -122,6 +122,27 @@ export default function Home() {
                 </div>
               </Link>
             )}
+
+            {/* Window Manager Demo Link - Always show since it's a core feature */}
+            <Link href="/window-manager-demo" className="group">
+              <div className="border border-gray-200 dark:border-gray-800 rounded-lg p-6 bg-gray-50 dark:bg-gray-950 hover:bg-white dark:hover:bg-black transition-colors">
+                <div className="flex items-center gap-3 mb-4">
+                  <Monitor size={24} className="text-black dark:text-white" />
+                  <h3 className="text-lg font-semibold text-black dark:text-white">
+                    Window Manager
+                  </h3>
+                  <ArrowRight size={16} className="text-gray-400 group-hover:text-black dark:group-hover:text-white group-hover:translate-x-1 transition-all ml-auto" />
+                </div>
+                <p className="text-gray-600 dark:text-gray-400 mb-4">
+                  Create multiple windows and enable real-time inter-window communication with message passing and event handling.
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  <span className="px-2 py-1 text-xs bg-black dark:bg-white text-white dark:text-black rounded">Multi-Window</span>
+                  <span className="px-2 py-1 text-xs bg-black dark:bg-white text-white dark:text-black rounded">Messaging</span>
+                  <span className="px-2 py-1 text-xs bg-black dark:bg-white text-white dark:text-black rounded">Events</span>
+                </div>
+              </div>
+            </Link>
           </div>
           
           {/* Show message when no features are enabled */}

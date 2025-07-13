@@ -1,6 +1,6 @@
 use tauri::{
     menu::{Menu, MenuItem, PredefinedMenuItem, Submenu},
-    App, Result,
+    App, AppHandle, Manager, Result,
 };
 
 pub fn create_app_menu(app: &App) -> Result<Menu<tauri::Wry>> {
@@ -70,8 +70,77 @@ pub fn create_app_menu(app: &App) -> Result<Menu<tauri::Wry>> {
         ],
     )?;
 
-    Menu::with_items(
+    // Developer menu (only in debug mode)
+    #[cfg(debug_assertions)]
+    let developer_menu = Submenu::with_items(
         app,
-        &[&file_menu, &edit_menu, &view_menu, &window_menu, &help_menu],
-    )
+        "Developer",
+        true,
+        &[
+            &MenuItem::with_id(app, "restart_app", "Restart App", true, Some("CmdOrCtrl+Shift+R"))?,
+            &PredefinedMenuItem::separator(app)?,
+            &MenuItem::with_id(app, "reload_all", "Reload All Windows", true, Some("CmdOrCtrl+Shift+F5"))?,
+        ],
+    )?;
+
+    #[cfg(debug_assertions)]
+    {
+        Menu::with_items(app, &[&file_menu, &edit_menu, &view_menu, &window_menu, &developer_menu, &help_menu])
+    }
+    #[cfg(not(debug_assertions))]
+    {
+        Menu::with_items(app, &[&file_menu, &edit_menu, &view_menu, &window_menu, &help_menu])
+    }
+}
+
+pub fn handle_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
+    match event.id().as_ref() {
+        "restart_app" => {
+            #[cfg(debug_assertions)]
+            {
+                println!("Restarting application...");
+                app.restart();
+            }
+        }
+        "reload_all" => {
+            #[cfg(debug_assertions)]
+            {
+                println!("Reloading all windows...");
+                for (_label, window) in app.webview_windows() {
+                    let _ = window.eval("window.location.reload()");
+                }
+            }
+        }
+        "reload" => {
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.eval("window.location.reload()");
+            }
+        }
+        "toggle_devtools" => {
+            if let Some(window) = app.get_webview_window("main") {
+                if window.is_devtools_open() {
+                    let _ = window.close_devtools();
+                } else {
+                    let _ = window.open_devtools();
+                }
+            }
+        }
+        "about" => {
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.show();
+                let _ = window.set_focus();
+                // You could show an about dialog here
+                println!("About clicked from menu");
+            }
+        }
+        "documentation" => {
+            if let Some(window) = app.get_webview_window("main") {
+                let _ = window.show();
+                let _ = window.set_focus();
+                // You could navigate to documentation page here
+                println!("Documentation clicked from menu");
+            }
+        }
+        _ => {}
+    }
 }

@@ -25,6 +25,10 @@ A modern, cross-platform desktop application starter kit built with **Tauri**, *
 
 ![Application Screenshot](public/screenshot.png)
 
+##### Inter-window comm.
+![Application Screenshot](public/screenshot-iwc.png)
+
+
 ## 🏗️ Project Structure
 
 ```

@@ -12,6 +12,7 @@ mod features;
 // Conditional module imports based on features
 #[cfg(feature = "system-tray")]
 mod tray;
+mod menu;
 
 use commands::*;
 use features::get_enabled_features;
@@ -20,10 +21,15 @@ use features::get_enabled_features;
 use features::notifications::commands::*;
 #[cfg(feature = "system-tray")]
 use tray::*;
+use menu::*;
 #[cfg(feature = "clipboard")]
 use features::clipboard::commands::*;
 #[cfg(feature = "deep-links")]
 use features::deep_links::commands::*;
+#[cfg(feature = "window-manager")]
+use features::window_manager::commands::*;
+#[cfg(feature = "window-manager")]
+use features::window_manager::utils::*;
 
 fn main() {
     let builder = tauri::Builder::default()
@@ -39,11 +45,12 @@ fn main() {
     #[cfg(feature = "clipboard")]
     let builder = builder.plugin(tauri_plugin_clipboard_manager::init());
 
-    builder
+    let mut app_builder = builder
         .invoke_handler(tauri::generate_handler![
             greet,
             show_window,
             hide_window,
+            restart_app,
             get_enabled_features,
             #[cfg(feature = "notifications")]
             check_notification_permission,
@@ -94,9 +101,37 @@ fn main() {
             #[cfg(feature = "deep-links")]
             handle_deep_link_event,
             #[cfg(feature = "deep-links")]
-            handle_deep_link_detailed
-        ])
+            handle_deep_link_detailed,
+            #[cfg(feature = "window-manager")]
+            create_window,
+            #[cfg(feature = "window-manager")]
+            close_window,
+            #[cfg(feature = "window-manager")]
+            get_all_windows,
+            #[cfg(feature = "window-manager")]
+            send_message_to_window,
+            #[cfg(feature = "window-manager")]
+            broadcast_message,
+            #[cfg(feature = "window-manager")]
+            get_message_history,
+            #[cfg(feature = "window-manager")]
+            focus_window,
+            #[cfg(feature = "window-manager")]
+            toggle_window_visibility
+        ]);
+
+    #[cfg(feature = "window-manager")]
+    {
+        app_builder = app_builder.manage(init_window_state());
+    }
+
+    app_builder
         .setup(|app| {
+            // Create application menu
+            let app_menu = create_app_menu(app)?;
+            app.set_menu(app_menu)?;
+            app.on_menu_event(handle_menu_event);
+
             #[cfg(feature = "system-tray")]
             {
                 // Create system tray

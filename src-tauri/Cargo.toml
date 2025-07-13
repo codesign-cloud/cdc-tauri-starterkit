@@ -1,11 +1,11 @@
 [package]
 name = "cdc-tauri-starterkit"
-version = "0.1.0"
-description = "A Tauri App with Next.js 15+, TypeScript, and Tailwind CSS"
-authors = ["you"]
+version = "0.2.0"
+description = "A Tauri Starterkit App with Next.js 15+, TypeScript, and Tailwind CSS"
+authors = ["thinkdj"]
 license = ""
 repository = ""
-edition = "2021"
+edition = "2024"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -35,3 +35,4 @@ notifications = ["dep:tauri-plugin-notification"]
 deep-links = ["dep:tauri-plugin-deep-link"]
 clipboard = ["dep:tauri-plugin-clipboard-manager", "dep:image", "dep:base64", "dep:chrono"]
 system-tray = ["tauri/tray-icon"]
+window-manager = []

@@ -13,6 +13,9 @@ pub mod notifications;
 #[cfg(feature = "deep-links")]
 pub mod deep_links;
 
+#[cfg(feature = "window-manager")]
+pub mod window_manager;
+
 /// Feature flags for the application
 #[derive(Debug, Clone)]
 #[allow(dead_code)]
@@ -21,6 +24,7 @@ pub struct Features {
     pub notifications: bool,
     pub deep_links: bool,
     pub system_tray: bool,
+    pub window_manager: bool,
 }
 
 impl Default for Features {
@@ -30,6 +34,7 @@ impl Default for Features {
             notifications: true,
             deep_links: true,
             system_tray: true,
+            window_manager: true,
         }
     }
 }
@@ -65,6 +70,12 @@ impl Features {
         self
     }
     
+    /// Enable window manager functionality
+    pub fn with_window_manager(mut self, enabled: bool) -> Self {
+        self.window_manager = enabled;
+        self
+    }
+    
     /// Create a minimal configuration with only basic features
     pub fn minimal() -> Self {
         Self {
@@ -72,6 +83,7 @@ impl Features {
             notifications: false,
             deep_links: false,
             system_tray: false,
+            window_manager: false,
         }
     }
     
@@ -92,7 +104,7 @@ macro_rules! feature_enabled {
 /// Tauri command to get enabled features at runtime
 #[tauri::command]
 pub fn get_enabled_features() -> Vec<&'static str> {
-    let v = Vec::new();
+    let mut v = Vec::new();
     #[cfg(feature = "notifications")]
     v.push("notifications");
     #[cfg(feature = "deep-links")]
@@ -101,5 +113,7 @@ pub fn get_enabled_features() -> Vec<&'static str> {
     v.push("clipboard");
     #[cfg(feature = "system-tray")]
     v.push("system-tray");
+    #[cfg(feature = "window-manager")]
+    v.push("window-manager");
     v
 }

@@ -5,18 +5,38 @@ use tauri::{
 };
 
 pub fn create_tray_menu(app: &App) -> Result<Menu<tauri::Wry>> {
-    Menu::with_items(
-        app,
-        &[
-            &MenuItem::with_id(app, "show", "Show Window", true, None::<&str>)?,
-            &MenuItem::with_id(app, "hide", "Hide Window", true, None::<&str>)?,
-            &PredefinedMenuItem::separator(app)?,
-            &MenuItem::with_id(app, "about_tray", "About", true, None::<&str>)?,
-            &MenuItem::with_id(app, "settings", "Settings", true, None::<&str>)?,
-            &PredefinedMenuItem::separator(app)?,
-            &PredefinedMenuItem::quit(app, Some("Quit"))?,
-        ],
-    )
+    #[cfg(debug_assertions)]
+    {
+        Menu::with_items(
+            app,
+            &[
+                &MenuItem::with_id(app, "show", "Show Window", true, None::<&str>)?,
+                &MenuItem::with_id(app, "hide", "Hide Window", true, None::<&str>)?,
+                &PredefinedMenuItem::separator(app)?,
+                &MenuItem::with_id(app, "about_tray", "About", true, None::<&str>)?,
+                &MenuItem::with_id(app, "settings", "Settings", true, None::<&str>)?,
+                &PredefinedMenuItem::separator(app)?,
+                &MenuItem::with_id(app, "restart_app_tray", "Restart App", true, None::<&str>)?,
+                &PredefinedMenuItem::separator(app)?,
+                &PredefinedMenuItem::quit(app, Some("Quit"))?,
+            ],
+        )
+    }
+    #[cfg(not(debug_assertions))]
+    {
+        Menu::with_items(
+            app,
+            &[
+                &MenuItem::with_id(app, "show", "Show Window", true, None::<&str>)?,
+                &MenuItem::with_id(app, "hide", "Hide Window", true, None::<&str>)?,
+                &PredefinedMenuItem::separator(app)?,
+                &MenuItem::with_id(app, "about_tray", "About", true, None::<&str>)?,
+                &MenuItem::with_id(app, "settings", "Settings", true, None::<&str>)?,
+                &PredefinedMenuItem::separator(app)?,
+                &PredefinedMenuItem::quit(app, Some("Quit"))?,
+            ],
+        )
+    }
 }
 
 pub fn handle_tray_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
@@ -46,6 +66,13 @@ pub fn handle_tray_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
                 let _ = window.set_focus();
                 // You could navigate to settings page here
                 println!("Settings clicked from tray");
+            }
+        }
+        "restart_app_tray" => {
+            #[cfg(debug_assertions)]
+            {
+                println!("Restarting application from tray...");
+                app.restart();
             }
         }
         _ => {}

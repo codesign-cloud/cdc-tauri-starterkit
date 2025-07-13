@@ -10,7 +10,7 @@
     "lint": "next lint",
     "tauri": "tauri",
     "tauri:dev": "tauri dev",
-    "tauri:dev:feat": "tauri dev --features notifications,deep-links,clipboard,system-tray",
+    "tauri:dev:feat": "tauri dev --features notifications,deep-links,clipboard,system-tray,window-manager",
     "tauri:build": "tauri build",
     "tauri:info": "tauri info",
     "version:patch": "npm version patch --no-git-tag-version && node scripts/sync-version.js",

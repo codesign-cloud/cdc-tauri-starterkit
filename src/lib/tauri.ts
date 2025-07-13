@@ -27,6 +27,14 @@ export interface TauriCommands {
   send_success_notification: (message?: string) => Promise<NotificationResult>
   send_error_notification: (message?: string) => Promise<NotificationResult>
   send_info_notification: (message?: string) => Promise<NotificationResult>
+  create_window: (options: any) => Promise<any>
+  close_window: (label: string) => Promise<any>
+  get_all_windows: () => Promise<any[]>
+  send_message_to_window: (fromWindow: string, toWindow: string, messageType: string, payload: any) => Promise<any>
+  broadcast_message: (fromWindow: string, messageType: string, payload: any) => Promise<any>
+  get_message_history: (limit?: number) => Promise<any[]>
+  focus_window: (label: string) => Promise<any>
+  toggle_window_visibility: (label: string) => Promise<any>
 }
 
 // Wrapper functions for Tauri commands with error handling
