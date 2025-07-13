@@ -104,16 +104,22 @@ macro_rules! feature_enabled {
 /// Tauri command to get enabled features at runtime
 #[tauri::command]
 pub fn get_enabled_features() -> Vec<&'static str> {
-    let mut v = Vec::new();
+    let mut features = Vec::new();
+    
     #[cfg(feature = "notifications")]
-    v.push("notifications");
+    features.push("notifications");
+    
     #[cfg(feature = "deep-links")]
-    v.push("deep-links");
+    features.push("deep-links");
+    
     #[cfg(feature = "clipboard")]
-    v.push("clipboard");
+    features.push("clipboard");
+    
     #[cfg(feature = "system-tray")]
-    v.push("system-tray");
+    features.push("system-tray");
+    
     #[cfg(feature = "window-manager")]
-    v.push("window-manager");
-    v
+    features.push("window-manager");
+    
+    features
 }

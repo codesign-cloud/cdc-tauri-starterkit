@@ -45,7 +45,7 @@ fn main() {
     #[cfg(feature = "clipboard")]
     let builder = builder.plugin(tauri_plugin_clipboard_manager::init());
 
-    let mut app_builder = builder
+    let app_builder = builder
         .invoke_handler(tauri::generate_handler![
             greet,
             show_window,
@@ -121,9 +121,7 @@ fn main() {
         ]);
 
     #[cfg(feature = "window-manager")]
-    {
-        app_builder = app_builder.manage(init_window_state());
-    }
+    let app_builder = app_builder.manage(init_window_state());
 
     app_builder
         .setup(|app| {

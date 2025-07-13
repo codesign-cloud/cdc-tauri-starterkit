@@ -32,14 +32,21 @@ pub fn hide_window(app: AppHandle) -> Result<(), String> {
 pub async fn restart_app(app: AppHandle) -> Result<(), String> {
     #[cfg(debug_assertions)]
     {
-        // Only allow restart in debug mode
-        app.restart();
-        // This line is unreachable but needed for type checking
-        #[allow(unreachable_code)]
+        // In development mode, reload all windows instead of restarting the entire process
+        // This preserves the CLI dev server
+        println!("Reloading application (dev mode)...");
+        for (_label, window) in app.webview_windows() {
+            let _ = window.eval("window.location.reload()");
+        }
         Ok(())
     }
     #[cfg(not(debug_assertions))]
     {
-        Err("Restart is only available in development mode".to_string())
+        // In production mode, actually restart the application
+        println!("Restarting application (production mode)...");
+        app.restart();
+        // This line is unreachable but needed for type checking
+        #[allow(unreachable_code)]
+        Ok(())
     }
 }

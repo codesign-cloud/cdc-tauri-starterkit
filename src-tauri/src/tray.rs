@@ -16,7 +16,7 @@ pub fn create_tray_menu(app: &App) -> Result<Menu<tauri::Wry>> {
                 &MenuItem::with_id(app, "about_tray", "About", true, None::<&str>)?,
                 &MenuItem::with_id(app, "settings", "Settings", true, None::<&str>)?,
                 &PredefinedMenuItem::separator(app)?,
-                &MenuItem::with_id(app, "restart_app_tray", "Restart App", true, None::<&str>)?,
+                &MenuItem::with_id(app, "restart_app_tray", "Reload App (Dev)", true, None::<&str>)?,
                 &PredefinedMenuItem::separator(app)?,
                 &PredefinedMenuItem::quit(app, Some("Quit"))?,
             ],
@@ -71,7 +71,17 @@ pub fn handle_tray_menu_event(app: &AppHandle, event: tauri::menu::MenuEvent) {
         "restart_app_tray" => {
             #[cfg(debug_assertions)]
             {
-                println!("Restarting application from tray...");
+                // In development mode, reload all windows instead of restarting the entire process
+                // This preserves the CLI dev server
+                println!("Reloading application from tray (dev mode)...");
+                for (_label, window) in app.webview_windows() {
+                    let _ = window.eval("window.location.reload()");
+                }
+            }
+            #[cfg(not(debug_assertions))]
+            {
+                // In production mode, actually restart the application
+                println!("Restarting application from tray (production mode)...");
                 app.restart();
             }
         }
